@@ -16,7 +16,7 @@ body="$(read_post_data)"
 frequency="$(printf '%s' "$body" | sed -n 's/^.*frequency=\([^&]*\).*$/\1/p')"
 frequency="$(urldecode "$frequency")"
 
-display_frequency="99.5"
+display_frequency="108.0"
 if /usr/bin/radio-set-frequency "$frequency" >/tmp/radio-cgi.log 2>&1; then
   status="Frequency changed to ${frequency} MHz"
   display_frequency="$frequency"

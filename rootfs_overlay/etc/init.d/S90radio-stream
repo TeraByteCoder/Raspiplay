@@ -3,7 +3,7 @@
 case "$1" in
   start)
     printf 'Starting FM stream: '
-    /usr/bin/radio-set-frequency "$(cat /tmp/radio-frequency 2>/dev/null || echo 99.5)" >/var/log/radio-stream.log 2>&1
+    /usr/bin/radio-set-frequency "$(cat /tmp/radio-frequency 2>/dev/null || echo 108.0)" >/var/log/radio-stream.log 2>&1
     echo "OK"
     ;;
   stop)
@@ -22,4 +22,3 @@ case "$1" in
 esac
 
 exit 0
-
