@@ -1,0 +1,25 @@
+#!/bin/sh
+
+case "$1" in
+  start)
+    printf 'Starting FM stream: '
+    /usr/bin/radio-set-frequency "$(cat /tmp/radio-frequency 2>/dev/null || echo 99.5)" >/var/log/radio-stream.log 2>&1
+    echo "OK"
+    ;;
+  stop)
+    printf 'Stopping FM stream: '
+    /usr/bin/radio-stop-stream
+    echo "OK"
+    ;;
+  restart|reload)
+    "$0" stop
+    "$0" start
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart}"
+    exit 1
+    ;;
+esac
+
+exit 0
+

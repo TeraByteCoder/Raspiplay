@@ -1,0 +1,13 @@
+#!/bin/sh
+
+while true; do
+  bluetoothctl devices 2>/dev/null | while read -r _ mac _name; do
+    case "$mac" in
+      [0-9A-Fa-f][0-9A-Fa-f]:[0-9A-Fa-f][0-9A-Fa-f]:[0-9A-Fa-f][0-9A-Fa-f]:[0-9A-Fa-f][0-9A-Fa-f]:[0-9A-Fa-f][0-9A-Fa-f]:[0-9A-Fa-f][0-9A-Fa-f])
+        bluetoothctl trust "$mac" >/dev/null 2>&1 || true
+        ;;
+    esac
+  done
+  sleep 3
+done
+

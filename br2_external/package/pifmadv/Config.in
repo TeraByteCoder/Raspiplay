@@ -1,0 +1,9 @@
+config BR2_PACKAGE_PIFMADV
+	bool "pifmadv"
+	depends on BR2_arm
+	select BR2_PACKAGE_LIBSNDFILE
+	select BR2_PACKAGE_LIBSOXR
+	help
+	  PiFmAdv FM transmitter for Raspberry Pi GPIO 4.
+
+	  This package cross-compiles the Pi 1/Zero ARMv6 binary.

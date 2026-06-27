@@ -1,0 +1,2 @@
+console=tty1 console=ttyAMA0,115200 quiet loglevel=3 rdinit=/sbin/init
+

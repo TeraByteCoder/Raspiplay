@@ -1,0 +1,8 @@
+buildroot/
+output/
+dl/
+*.img
+*.log
+*.swp
+.config
+

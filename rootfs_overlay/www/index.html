@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Radio Configuration</title>
+  <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+  <main class="shell">
+    <section class="panel">
+      <h1>Radio-Sender</h1>
+      <form method="post" action="/cgi-bin/set-frequency.cgi">
+        <label for="frequency">FM frequency</label>
+        <output id="frequencyValue">99.5 MHz</output>
+        <input id="frequency" name="frequency" type="range" min="87.5" max="108.0" step="0.1" value="99.5">
+        <button type="submit">Change frequency</button>
+      </form>
+    </section>
+  </main>
+  <script>
+    const slider = document.getElementById('frequency');
+    const value = document.getElementById('frequencyValue');
+    const update = () => value.textContent = Number(slider.value).toFixed(1) + ' MHz';
+    slider.addEventListener('input', update);
+    update();
+  </script>
+</body>
+</html>

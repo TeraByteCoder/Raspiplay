@@ -1,0 +1,5 @@
+#!/bin/sh
+
+killall pifmadv 2>/dev/null || true
+killall arecord 2>/dev/null || true
+

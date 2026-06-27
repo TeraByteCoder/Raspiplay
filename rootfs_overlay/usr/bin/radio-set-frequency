@@ -1,0 +1,21 @@
+#!/bin/bash
+set -euo pipefail
+
+frequency="${1:-}"
+
+if ! awk -v f="$frequency" 'BEGIN { exit !(f ~ /^[0-9]+(\.[0-9]+)?$/ && f >= 87.5 && f <= 108.0) }'; then
+  echo "Invalid frequency: $frequency" >&2
+  exit 2
+fi
+
+printf '%s\n' "$frequency" >/tmp/radio-frequency
+
+/usr/bin/radio-stop-stream
+sleep 0.2
+
+(
+  arecord -D bluealsa -f S16_LE -r 44100 -c 2 | pifmadv --audio - --freq "$frequency"
+) >/var/log/radio-stream.log 2>&1 &
+
+echo "FM stream restarted at ${frequency} MHz"
+
