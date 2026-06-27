@@ -4,10 +4,16 @@ case "$1" in
   start)
     printf 'Starting Wi-Fi client: '
     rfkill unblock wifi 2>/dev/null || true
+    modprobe brcmfmac 2>/dev/null || true
+    sleep 1
     killall udhcpc 2>/dev/null || true
     killall wpa_supplicant 2>/dev/null || true
     ip link set wlan0 down 2>/dev/null || true
     ip addr flush dev wlan0 2>/dev/null || true
+    if ! ip link show wlan0 >/dev/null 2>&1; then
+      echo "no wlan0"
+      exit 0
+    fi
     ip link set wlan0 up
     if [ ! -s /etc/wpa_supplicant.conf ]; then
       echo "missing /etc/wpa_supplicant.conf"

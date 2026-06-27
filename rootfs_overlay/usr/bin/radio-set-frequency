@@ -13,9 +13,14 @@ printf '%s\n' "$frequency" >/tmp/radio-frequency
 /usr/bin/radio-stop-stream
 sleep 0.2
 
+if ! command -v pifmadv >/dev/null 2>&1; then
+  echo "pifmadv not found" >&2
+  exit 1
+fi
+
 (
+  exec </dev/null
   arecord -D bluealsa -f S16_LE -r 44100 -c 2 | pifmadv --audio - --freq "$frequency"
 ) >/var/log/radio-stream.log 2>&1 &
 
 echo "FM stream restarted at ${frequency} MHz"
-
