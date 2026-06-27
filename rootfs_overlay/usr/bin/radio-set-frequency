@@ -18,9 +18,28 @@ if ! command -v pifmadv >/dev/null 2>&1; then
   exit 1
 fi
 
+device=""
+for _ in $(seq 1 20); do
+  while read -r _ mac _name; do
+    if bluetoothctl info "$mac" 2>/dev/null | grep -q "Connected: yes"; then
+      device="$mac"
+      break
+    fi
+  done <<EOF
+$(bluetoothctl devices 2>/dev/null)
+EOF
+  [ -n "$device" ] && break
+  sleep 1
+done
+
+if [ -z "$device" ]; then
+  echo "No connected Bluetooth audio device found" >&2
+  exit 3
+fi
+
 (
   exec </dev/null
-  arecord -D bluealsa -f S16_LE -r 44100 -c 2 | pifmadv --audio - --freq "$frequency"
+  arecord -D "bluealsa:DEV=$device,PROFILE=a2dp" -f S16_LE -r 44100 -c 2 | pifmadv --audio - --freq "$frequency"
 ) >/var/log/radio-stream.log 2>&1 &
 
-echo "FM stream restarted at ${frequency} MHz"
+echo "FM stream restarted at ${frequency} MHz from ${device}"

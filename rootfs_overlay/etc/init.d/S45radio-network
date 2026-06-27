@@ -1,33 +1,60 @@
 #!/bin/sh
 
+WLAN_IF="wlan0"
+AP_ADDR="192.168.4.1/24"
+
+stop_network() {
+  killall dnsmasq 2>/dev/null || true
+  killall hostapd 2>/dev/null || true
+  killall udhcpc 2>/dev/null || true
+  killall wpa_supplicant 2>/dev/null || true
+}
+
+prepare_wlan() {
+  rfkill unblock wifi 2>/dev/null || true
+  modprobe brcmfmac 2>/dev/null || true
+  for _ in 1 2 3 4 5; do
+    ip link show "$WLAN_IF" >/dev/null 2>&1 && return 0
+    sleep 1
+  done
+  return 1
+}
+
+start_hotspot() {
+  stop_network
+  ip link set "$WLAN_IF" down 2>/dev/null || true
+  ip addr flush dev "$WLAN_IF" 2>/dev/null || true
+  ip addr add "$AP_ADDR" dev "$WLAN_IF"
+  ip link set "$WLAN_IF" up
+  hostapd -B /etc/hostapd/hostapd.conf >/var/log/hostapd.log 2>&1
+  dnsmasq --conf-file=/etc/dnsmasq.conf >/var/log/dnsmasq.log 2>&1
+}
+
 case "$1" in
   start)
-    printf 'Starting Wi-Fi client: '
-    rfkill unblock wifi 2>/dev/null || true
-    modprobe brcmfmac 2>/dev/null || true
-    sleep 1
-    killall udhcpc 2>/dev/null || true
-    killall wpa_supplicant 2>/dev/null || true
-    ip link set wlan0 down 2>/dev/null || true
-    ip addr flush dev wlan0 2>/dev/null || true
-    if ! ip link show wlan0 >/dev/null 2>&1; then
+    printf 'Starting Wi-Fi client/AP: '
+    stop_network
+    if ! prepare_wlan; then
       echo "no wlan0"
       exit 0
     fi
-    ip link set wlan0 up
-    if [ ! -s /etc/wpa_supplicant.conf ]; then
-      echo "missing /etc/wpa_supplicant.conf"
-      exit 1
+    ip link set "$WLAN_IF" down 2>/dev/null || true
+    ip addr flush dev "$WLAN_IF" 2>/dev/null || true
+    ip link set "$WLAN_IF" up
+    if [ -s /etc/wpa_supplicant.conf ]; then
+      wpa_supplicant -B -i "$WLAN_IF" -c /etc/wpa_supplicant.conf >/var/log/wpa_supplicant.log 2>&1
+      if udhcpc -i "$WLAN_IF" -x hostname:radio-sender -n -q -t 10 -T 2 -p /run/udhcpc.wlan0.pid >/var/log/udhcpc.log 2>&1; then
+        echo "client OK"
+        exit 0
+      fi
     fi
-    wpa_supplicant -B -i wlan0 -c /etc/wpa_supplicant.conf >/var/log/wpa_supplicant.log 2>&1
-    udhcpc -i wlan0 -x hostname:radio-sender -b -q -t 10 -T 2 -p /run/udhcpc.wlan0.pid >/var/log/udhcpc.log 2>&1
-    echo "OK"
+    start_hotspot
+    echo "hotspot OK"
     ;;
   stop)
-    printf 'Stopping Wi-Fi client: '
-    killall udhcpc 2>/dev/null || true
-    killall wpa_supplicant 2>/dev/null || true
-    ip link set wlan0 down 2>/dev/null || true
+    printf 'Stopping Wi-Fi client/AP: '
+    stop_network
+    ip link set "$WLAN_IF" down 2>/dev/null || true
     echo "OK"
     ;;
   restart|reload)

@@ -3,7 +3,7 @@
 case "$1" in
   start)
     printf 'Starting radio web interface: '
-    httpd -f -p 192.168.4.1:80 -h /www >/var/log/radio-httpd.log 2>&1 &
+    httpd -f -p 0.0.0.0:80 -h /www >/var/log/radio-httpd.log 2>&1 &
     echo "OK"
     ;;
   stop)
@@ -22,4 +22,3 @@ case "$1" in
 esac
 
 exit 0
-
