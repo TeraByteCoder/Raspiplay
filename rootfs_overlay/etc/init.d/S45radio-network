@@ -2,20 +2,25 @@
 
 case "$1" in
   start)
-    printf 'Starting radio access point: '
+    printf 'Starting Wi-Fi client: '
     rfkill unblock wifi 2>/dev/null || true
+    killall udhcpc 2>/dev/null || true
+    killall wpa_supplicant 2>/dev/null || true
     ip link set wlan0 down 2>/dev/null || true
     ip addr flush dev wlan0 2>/dev/null || true
-    ip addr add 192.168.4.1/24 dev wlan0
     ip link set wlan0 up
-    hostapd -B /etc/hostapd/hostapd.conf
-    dnsmasq --conf-file=/etc/dnsmasq.conf
+    if [ ! -s /etc/wpa_supplicant.conf ]; then
+      echo "missing /etc/wpa_supplicant.conf"
+      exit 1
+    fi
+    wpa_supplicant -B -i wlan0 -c /etc/wpa_supplicant.conf >/var/log/wpa_supplicant.log 2>&1
+    udhcpc -i wlan0 -x hostname:radio-sender -b -q -t 10 -T 2 -p /run/udhcpc.wlan0.pid >/var/log/udhcpc.log 2>&1
     echo "OK"
     ;;
   stop)
-    printf 'Stopping radio access point: '
-    killall dnsmasq 2>/dev/null || true
-    killall hostapd 2>/dev/null || true
+    printf 'Stopping Wi-Fi client: '
+    killall udhcpc 2>/dev/null || true
+    killall wpa_supplicant 2>/dev/null || true
     ip link set wlan0 down 2>/dev/null || true
     echo "OK"
     ;;
@@ -30,4 +35,3 @@ case "$1" in
 esac
 
 exit 0
-

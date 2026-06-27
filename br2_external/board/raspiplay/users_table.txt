@@ -1,0 +1,2 @@
+radio 1000 radio 1000 =radio /home/radio /bin/sh - Radio debug user
+

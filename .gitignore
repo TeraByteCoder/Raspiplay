@@ -5,4 +5,5 @@ dl/
 *.log
 *.swp
 .config
+rootfs_overlay/etc/wpa_supplicant.conf
 

@@ -10,7 +10,7 @@ The root filesystem is embedded as a gzip-compressed initramfs and runs from RAM
 - BusyBox init, no systemd, no PulseAudio, no PipeWire.
 - Read-only initramfs root filesystem with volatile `/tmp`, `/run`, and `/var` tmpfs mounts.
 - BlueZ 5, BlueALSA, `bt-agent`, and automatic trust loop for incoming Bluetooth devices.
-- WLAN access point at `192.168.4.1` with SSID `Radio-Konfig` and password `12345678`.
+- WLAN client mode with SSH enabled for debugging.
 - BusyBox `httpd` web UI with an FM frequency slider from 87.5 to 108.0 MHz.
 - `pifmadv` cross-compiled for Raspberry Pi 1/Zero ARMv6.
 
@@ -38,8 +38,8 @@ Replace `/dev/sdX` with the actual block device.
 
 ## Runtime
 
-- Connect to Wi-Fi SSID `Radio-Konfig`.
-- Open `http://192.168.4.1/`.
+- The Pi connects to the configured Wi-Fi on boot.
+- SSH login: `radio` / `radio` or `root` / `radio`.
 - Pair a phone with Bluetooth device `Radio-Sender`.
 - Set the FM frequency in the web UI.
 
@@ -70,4 +70,3 @@ build.sh                        Full Arch Linux build automation
 Modern Buildroot uses `raspberrypi0w_defconfig` for the first-generation Raspberry Pi Zero W. Older references to `raspberrypizero_defconfig` are not valid in Buildroot 2026.02.x.
 
 `pifmadv` is an experimental FM transmitter. Transmitting RF without authorization is illegal in many jurisdictions. Use a shielded/direct connection and comply with local regulations.
-
