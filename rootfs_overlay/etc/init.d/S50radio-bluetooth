@@ -7,11 +7,10 @@ case "$1" in
     hciconfig hci0 up 2>/dev/null || true
     hciconfig hci0 name "Radio-Sender" 2>/dev/null || true
     hciconfig hci0 piscan 2>/dev/null || true
-    btmgmt power on >/dev/null 2>&1 || true
-    btmgmt connectable on >/dev/null 2>&1 || true
-    btmgmt bondable on >/dev/null 2>&1 || true
-    btmgmt pairable on >/dev/null 2>&1 || true
-    btmgmt discov on >/dev/null 2>&1 || true
+    bluetoothctl power on >/dev/null 2>&1 || true
+    bluetoothctl system-alias "Radio-Sender" >/dev/null 2>&1 || true
+    bluetoothctl pairable on >/dev/null 2>&1 || true
+    bluetoothctl discoverable on >/dev/null 2>&1 || true
     bt-agent --capability=NoInputNoOutput -p /etc/bluetooth/pin.conf >/var/log/radio-bt-agent.log 2>&1 &
     /usr/bin/radio-bt-trust >/var/log/radio-bt-trust.log 2>&1 &
     echo "OK"
