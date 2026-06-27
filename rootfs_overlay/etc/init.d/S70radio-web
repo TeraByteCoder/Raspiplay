@@ -3,7 +3,7 @@
 case "$1" in
   start)
     printf 'Starting radio web interface: '
-    httpd -f -p 0.0.0.0:80 -h /www >/var/log/radio-httpd.log 2>&1 &
+    httpd -f -p 0.0.0.0:80 -h /www -c /etc/httpd.conf >/var/log/radio-httpd.log 2>&1 &
     echo "OK"
     ;;
   stop)
