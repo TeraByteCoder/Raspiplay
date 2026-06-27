@@ -45,9 +45,27 @@ output {
   font-weight: 700;
 }
 
+.status {
+  min-height: 22px;
+  margin: -10px 0 18px;
+  color: #aeb8bf;
+}
+
 input[type="range"] {
   width: 100%;
   accent-color: #49c27a;
+}
+
+.fine-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.fine-grid button {
+  min-height: 40px;
+  background: #263039;
+  color: #f5f7f8;
 }
 
 button {
@@ -59,4 +77,3 @@ button {
   font: inherit;
   font-weight: 700;
 }
-
