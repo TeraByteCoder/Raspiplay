@@ -1,0 +1,8 @@
+config BR2_PACKAGE_FM_TRANSMITTER
+	bool "fm_transmitter"
+	depends on BR2_arm
+	depends on BR2_INSTALL_LIBSTDCPP
+	help
+	  Simple Raspberry Pi FM transmitter for GPIO4 live audio.
+
+	  https://github.com/markondej/fm_transmitter

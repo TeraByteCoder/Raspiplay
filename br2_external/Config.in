@@ -1,2 +1,2 @@
+source "$BR2_EXTERNAL_RASPIPLAY_PATH/package/fm-transmitter/Config.in"
 source "$BR2_EXTERNAL_RASPIPLAY_PATH/package/pifmadv/Config.in"
-

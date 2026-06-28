@@ -1,5 +1,6 @@
 #!/bin/sh
 
 killall pifmadv 2>/dev/null || true
+killall fm_transmitter 2>/dev/null || true
+killall pi_fm_rds 2>/dev/null || true
 killall arecord 2>/dev/null || true
-
