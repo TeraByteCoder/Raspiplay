@@ -15,6 +15,11 @@ if ! command -v fm_transmitter >/dev/null 2>&1; then
   exit 1
 fi
 
+if pidof bluealsa-cli >/dev/null 2>&1 || pidof radio-pcm-half >/dev/null 2>&1; then
+  echo "Bluetooth stream is active; not starting silence carrier"
+  exit 0
+fi
+
 if [ ! -s "$silence" ]; then
   {
     printf 'RIFF'

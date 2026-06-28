@@ -5,3 +5,14 @@ killall fm_transmitter 2>/dev/null || true
 killall pi_fm_rds 2>/dev/null || true
 killall arecord 2>/dev/null || true
 killall bluealsa-cli 2>/dev/null || true
+killall radio-pcm-half 2>/dev/null || true
+
+for pid in $(pidof fm_transmitter 2>/dev/null || true); do
+  kill "$pid" 2>/dev/null || true
+done
+for pid in $(pidof bluealsa-cli 2>/dev/null || true); do
+  kill "$pid" 2>/dev/null || true
+done
+for pid in $(pidof radio-pcm-half 2>/dev/null || true); do
+  kill "$pid" 2>/dev/null || true
+done

@@ -23,6 +23,11 @@ if ! command -v bluealsa-cli >/dev/null 2>&1; then
   exit 1
 fi
 
+if ! command -v radio-pcm-half >/dev/null 2>&1; then
+  echo "radio-pcm-half not found" >&2
+  exit 1
+fi
+
 device=""
 for _ in $(seq 1 20); do
   while read -r _ mac _name; do
@@ -64,8 +69,8 @@ write_wav_stream_header() {
   printf '\020\000\000\000'
   printf '\001\000'
   printf '\001\000'
+  printf '\042\126\000\000'
   printf '\104\254\000\000'
-  printf '\210\130\001\000'
   printf '\002\000'
   printf '\020\000'
   printf 'data'
@@ -77,7 +82,7 @@ write_wav_stream_header() {
   set +e
   {
     write_wav_stream_header
-    bluealsa-cli open "$pcm_path"
+    bluealsa-cli open "$pcm_path" | radio-pcm-half
   } | fm_transmitter -f "$frequency" -
   status=$?
   /usr/bin/radio-start-silence "$frequency" >/var/log/radio-silence-fallback.log 2>&1

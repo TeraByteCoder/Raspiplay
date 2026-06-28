@@ -1,0 +1,4 @@
+config BR2_PACKAGE_RADIO_TOOLS
+	bool "radio-tools"
+	help
+	  Small audio helpers for the Raspberry Pi FM radio image.
