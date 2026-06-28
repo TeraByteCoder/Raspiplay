@@ -21,7 +21,7 @@ while true; do
   fi
 
   if [ -n "$connected" ]; then
-    if ! pidof arecord >/dev/null 2>&1; then
+    if ! pidof bluealsa-cli >/dev/null 2>&1; then
       /usr/bin/radio-set-frequency "$frequency" >/var/log/radio-auto-stream.log 2>&1 || true
     fi
   else

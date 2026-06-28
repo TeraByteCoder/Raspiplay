@@ -18,6 +18,11 @@ if ! command -v fm_transmitter >/dev/null 2>&1; then
   exit 1
 fi
 
+if ! command -v bluealsa-cli >/dev/null 2>&1; then
+  echo "bluealsa-cli not found" >&2
+  exit 1
+fi
+
 device=""
 for _ in $(seq 1 20); do
   while read -r _ mac _name; do
@@ -38,11 +43,42 @@ if [ -z "$device" ]; then
   exit 0
 fi
 
+device_path="dev_${device//:/_}"
+pcm_path=""
+for _ in $(seq 1 10); do
+  pcm_path="$(bluealsa-cli list-pcms 2>/dev/null | grep "/$device_path/" | grep "/a2dpsnk/source" | head -n 1 || true)"
+  [ -n "$pcm_path" ] && break
+  sleep 1
+done
+
+if [ -z "$pcm_path" ]; then
+  /usr/bin/radio-start-silence "$frequency"
+  echo "No BlueALSA A2DP PCM found for ${device}; silence carrier active at ${frequency} MHz"
+  exit 0
+fi
+
+write_wav_stream_header() {
+  printf 'RIFF'
+  printf '\377\377\377\177'
+  printf 'WAVEfmt '
+  printf '\020\000\000\000'
+  printf '\001\000'
+  printf '\001\000'
+  printf '\104\254\000\000'
+  printf '\210\130\001\000'
+  printf '\002\000'
+  printf '\020\000'
+  printf 'data'
+  printf '\377\377\377\177'
+}
+
 (
   exec </dev/null
   set +e
-  arecord -D "bluealsa:DEV=$device,PROFILE=a2dp" -f S16_LE -r 22050 -c 1 - |
-    fm_transmitter -f "$frequency" -
+  {
+    write_wav_stream_header
+    bluealsa-cli open "$pcm_path"
+  } | fm_transmitter -f "$frequency" -
   status=$?
   /usr/bin/radio-start-silence "$frequency" >/var/log/radio-silence-fallback.log 2>&1
   exit "$status"
