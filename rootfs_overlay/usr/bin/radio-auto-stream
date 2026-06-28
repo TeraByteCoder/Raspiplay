@@ -1,0 +1,34 @@
+#!/bin/sh
+
+while true; do
+  frequency="$(cat /tmp/radio-frequency 2>/dev/null || echo 108.0)"
+  connected=""
+
+  bluetoothctl devices 2>/dev/null | while read -r _ mac _name; do
+    case "$mac" in
+      [0-9A-Fa-f][0-9A-Fa-f]:[0-9A-Fa-f][0-9A-Fa-f]:[0-9A-Fa-f][0-9A-Fa-f]:[0-9A-Fa-f][0-9A-Fa-f]:[0-9A-Fa-f][0-9A-Fa-f]:[0-9A-Fa-f][0-9A-Fa-f])
+        bluetoothctl trust "$mac" >/dev/null 2>&1 || true
+        if bluetoothctl info "$mac" 2>/dev/null | grep -q "Connected: yes"; then
+          echo "$mac" >/tmp/radio-connected-device
+        fi
+        ;;
+    esac
+  done
+
+  if [ -s /tmp/radio-connected-device ]; then
+    connected="$(cat /tmp/radio-connected-device)"
+    rm -f /tmp/radio-connected-device
+  fi
+
+  if [ -n "$connected" ]; then
+    if ! pidof arecord >/dev/null 2>&1; then
+      /usr/bin/radio-set-frequency "$frequency" >/var/log/radio-auto-stream.log 2>&1 || true
+    fi
+  else
+    if ! pidof fm_transmitter >/dev/null 2>&1; then
+      /usr/bin/radio-start-silence "$frequency" >/var/log/radio-auto-stream.log 2>&1 || true
+    fi
+  fi
+
+  sleep 3
+done

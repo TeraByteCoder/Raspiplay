@@ -4,10 +4,12 @@ case "$1" in
   start)
     printf 'Starting FM silence carrier: '
     /usr/bin/radio-start-silence "$(cat /tmp/radio-frequency 2>/dev/null || echo 108.0)" >/var/log/radio-stream-start.log 2>&1 || true
+    /usr/bin/radio-auto-stream >/var/log/radio-auto-stream.log 2>&1 &
     echo "OK"
     ;;
   stop)
     printf 'Stopping FM stream: '
+    killall radio-auto-stream 2>/dev/null || true
     /usr/bin/radio-stop-stream
     echo "OK"
     ;;
