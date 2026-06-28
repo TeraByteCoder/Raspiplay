@@ -1,5 +1,18 @@
 #!/bin/sh
 
+bt_stream_active() {
+  pidof bluealsa-cli >/dev/null 2>&1 &&
+    pidof radio-pcm-half >/dev/null 2>&1 &&
+    pidof fm_transmitter >/dev/null 2>&1
+}
+
+stop_broken_stream() {
+  killall radio-set-frequency 2>/dev/null || true
+  killall bluealsa-cli 2>/dev/null || true
+  killall radio-pcm-half 2>/dev/null || true
+  killall fm_transmitter 2>/dev/null || true
+}
+
 while true; do
   frequency="$(cat /tmp/radio-frequency 2>/dev/null || echo 108.0)"
   connected=""
@@ -21,7 +34,9 @@ while true; do
   fi
 
   if [ -n "$connected" ]; then
-    if ! pidof bluealsa-cli >/dev/null 2>&1; then
+    if ! bt_stream_active; then
+      stop_broken_stream
+      sleep 1
       /usr/bin/radio-set-frequency "$frequency" >/var/log/radio-auto-stream.log 2>&1 || true
     fi
   else
