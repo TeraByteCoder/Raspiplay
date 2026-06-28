@@ -39,7 +39,18 @@ fi
 
 (
   exec </dev/null
-  arecord -D "bluealsa:DEV=$device,PROFILE=a2dp" -f S16_LE -r 44100 -c 2 | pifmadv --audio - --freq "$frequency"
+  arecord -D "bluealsa:DEV=$device,PROFILE=a2dp" -f S16_LE -r 44100 -c 2 -t raw - |
+    pifmadv \
+      --audio - \
+      --srate 44100 \
+      --nochan 2 \
+      --freq "$frequency" \
+      --rds 0 \
+      --dev 25000 \
+      --mpx 12 \
+      --power 2 \
+      --gpio 4 \
+      --preemph eu
 ) >/var/log/radio-stream.log 2>&1 &
 
 echo "FM stream restarted at ${frequency} MHz from ${device}"

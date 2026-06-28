@@ -12,6 +12,7 @@ mkdir -p "$target_dir/run" "$target_dir/tmp" "$target_dir/var/lib/misc" \
 
 rm -f "$target_dir/etc/init.d/S80dnsmasq"
 rm -f "$target_dir/etc/init.d/S90httpd"
+rm -f "$target_dir/etc/alsa/conf.d/20-bluealsa-radio.conf"
 
 find "$target_dir/etc/init.d" -type f -name 'S*' -exec chmod 0755 {} +
 find "$target_dir/usr/bin" -type f -name 'radio-*' -exec chmod 0755 {} +
