@@ -33,14 +33,19 @@ EOF
 done
 
 if [ -z "$device" ]; then
-  echo "No connected Bluetooth audio device found" >&2
-  exit 3
+  /usr/bin/radio-start-silence "$frequency"
+  echo "No connected Bluetooth audio device found; silence carrier active at ${frequency} MHz"
+  exit 0
 fi
 
 (
   exec </dev/null
+  set +e
   arecord -D "bluealsa:DEV=$device,PROFILE=a2dp" -f S16_LE -r 22050 -c 1 - |
     fm_transmitter -f "$frequency" -
+  status=$?
+  /usr/bin/radio-start-silence "$frequency" >/var/log/radio-silence-fallback.log 2>&1
+  exit "$status"
 ) >/var/log/radio-stream.log 2>&1 &
 
 echo "FM stream restarted at ${frequency} MHz from ${device}"

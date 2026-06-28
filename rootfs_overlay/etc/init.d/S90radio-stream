@@ -2,8 +2,8 @@
 
 case "$1" in
   start)
-    printf 'Preparing FM stream: '
-    printf '%s\n' "$(cat /tmp/radio-frequency 2>/dev/null || echo 108.0)" >/tmp/radio-frequency
+    printf 'Starting FM silence carrier: '
+    /usr/bin/radio-start-silence "$(cat /tmp/radio-frequency 2>/dev/null || echo 108.0)" >/var/log/radio-stream-start.log 2>&1 || true
     echo "OK"
     ;;
   stop)

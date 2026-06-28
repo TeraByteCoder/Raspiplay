@@ -1,0 +1,41 @@
+#!/bin/sh
+
+set -eu
+
+frequency="${1:-$(cat /tmp/radio-frequency 2>/dev/null || echo 108.0)}"
+silence="/tmp/radio-silence.wav"
+
+if ! awk -v f="$frequency" 'BEGIN { exit !(f ~ /^[0-9]+(\.[0-9]+)?$/ && f >= 87.5 && f <= 108.0) }'; then
+  echo "Invalid frequency: $frequency" >&2
+  exit 2
+fi
+
+if ! command -v fm_transmitter >/dev/null 2>&1; then
+  echo "fm_transmitter not found" >&2
+  exit 1
+fi
+
+if [ ! -s "$silence" ]; then
+  {
+    printf 'RIFF'
+    printf '\x24\x58\x01\x00'
+    printf 'WAVEfmt '
+    printf '\x10\x00\x00\x00'
+    printf '\x01\x00'
+    printf '\x01\x00'
+    printf '\x22\x56\x00\x00'
+    printf '\x44\xac\x00\x00'
+    printf '\x02\x00'
+    printf '\x10\x00'
+    printf 'data'
+    printf '\x00\x58\x01\x00'
+    dd if=/dev/zero bs=88064 count=1 2>/dev/null
+  } >"$silence"
+fi
+
+printf '%s\n' "$frequency" >/tmp/radio-frequency
+/usr/bin/radio-stop-stream
+sleep 0.2
+fm_transmitter -f "$frequency" -r "$silence" >/var/log/radio-stream.log 2>&1 &
+
+echo "FM silence carrier started at ${frequency} MHz"
